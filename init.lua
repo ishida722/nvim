@@ -1,6 +1,5 @@
+require("config.lazy")
 require("keymaps")
-
-vim.opt.rtp:prepend("~/.config/nvim/lazy/lazy.nvim")
 
 vim.g.mapleader = " "
 vim.opt.expandtab = true     -- タブ入力をスペースに変換する
@@ -49,6 +48,4 @@ vim.opt.foldmethod = "manual" -- または "indent"
 vim.opt.foldexpr = "0"
 vim.opt.foldenable = false
 
--- プラグイン読み込み
-require("plugins")
 
