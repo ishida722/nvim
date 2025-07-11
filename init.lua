@@ -16,6 +16,14 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- マークダウンを自動で降りたたまない
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  callback = function()
+    vim.opt_local.foldmethod = "manual"
+  end
+})
+
 vim.api.nvim_create_user_command("OpenVimrc", function()
   vim.cmd("edit " .. vim.fn.stdpath("config") .. "/init.lua")
 end, { desc = "Open Neovim config file (init.lua)" })
