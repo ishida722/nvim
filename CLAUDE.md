@@ -4,58 +4,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a personal Neovim configuration built with Lazy.nvim plugin manager. The setup includes LSP support, markdown editing capabilities, file management, and a custom diary system for daily notes.
+Personal Neovim configuration using Lazy.nvim. Focused on markdown-heavy workflows with a git-based daily note system and Japanese input (SKK).
 
-## Key Commands
+## Code Style
 
-### Plugin Management
-- Lazy.nvim automatically installs and manages plugins
-- Plugin updates are checked automatically via `checker = { enabled = true }`
-- Plugin lock file: `lazy-lock.json`
+- Indentation: 2 spaces (4 for Python files via FileType autocmd)
+- No formatter configured — `stylua` is planned but not yet set up
 
-### Configuration Management
-- Main config: `init.lua`
-- Reload config: Use the `reload.lua` module's `reload_nvim()` function
-- Open config: `:OpenVimrc` custom command
+## Plugin Architecture
 
-### Daily Notes System
-- `<leader>tdn` - Open today's diary note (creates directory structure automatically)
-- `<leader>tp` - Push diary changes to git (auto-commit with "update" message)
-- `<leader>tff` - Find text files using Telescope
-- Diary directory: `~/projects/Texts/daily-notes/YYYY/MM/YYYY-MM-DD.md`
+Plugins are split by concern under `lua/plugins/`:
+- `init.lua` — aggregator using `vim.tbl_flatten`; add new plugin files here
+- `lsp.lua` — LSP + completion (nvim-lspconfig, nvim-cmp, LuaSnip)
+- `ui.lua` — Telescope, which-key
+- `markdown.lua` — vim-markdown, markdown-preview, table-mode, toc
+- `nvim-tree-setting.lua` — file explorer
+- `skkeleton.lua` — Japanese input method
 
-### File Operations
-- `<leader>ff` - Find files (Telescope)
-- `<leader>fg` - Live grep (Telescope)
-- `<leader>fb` - Switch buffer (Telescope)
-- `<C-n>` - Toggle nvim-tree file explorer
-- `<C-p>` - Next tab
-- `<C-n>` - Previous tab
+To add a new plugin: create `lua/plugins/<name>.lua` returning a plugin spec table, then add it to the `require` list in `lua/plugins/init.lua`.
 
-## Architecture
+## LSP
 
-### Plugin Organization
-- `lua/plugins/init.lua` - Main plugin aggregator using `vim.tbl_flatten`
-- `lua/plugins/lsp.lua` - LSP configuration (nvim-lspconfig, nvim-cmp, LuaSnip)
-- `lua/plugins/ui.lua` - UI plugins (Telescope, which-key)
-- `lua/plugins/markdown.lua` - Markdown editing tools (vim-markdown, markdown-preview, table-mode, toc)
-- `lua/plugins/nvim-tree-setting.lua` - File explorer configuration
+Only Python (Pyright) is configured. Other languages have no LSP server setup.
 
-### Custom Modules
-- `lua/diary.lua` - Custom diary system with git integration
-- `lua/keymaps.lua` - Additional keymaps (currently empty)
-- `lua/reload.lua` - Configuration reloading utilities
+## Environment Prerequisites
 
-### Configuration Structure
-- Leader key: `<space>`
-- Tab width: 2 spaces (4 for Python files)
-- Lazy loading enabled for performance
-- 24-bit color support enabled
+The following must exist for full functionality:
+- `~/projects/Texts/daily-notes/` — diary note directory (external repo)
+- `~/.skk/SKK-JISYO.L` — SKK Japanese input dictionary
+- Node.js/Deno — required by `denops.vim` (used by skkeleton)
+- npm — required by `markdown-preview.nvim` (built on first install)
+- Pyright — required for Python LSP
 
-### LSP Setup
-- Python support via Pyright
-- Completion with nvim-cmp
-- Tab/Shift-Tab navigation in completion menu
-- Enter to confirm completion
+## Known Gotchas
 
-The configuration is designed for markdown-heavy workflows with integrated git-based note management.
+- **`<C-n>` conflict**: mapped to both nvim-tree toggle (`nvim-tree-setting.lua`) and `:tabprev` (`init.lua`). The actual behavior may be inconsistent.
+- `lua/reload.lua` only reloads `diary` and `reload` modules — plugin changes require a full Neovim restart.
+- Diary `push_diary()` hard-codes commit message as `"update"` and pushes to whatever remote is configured in `~/projects/Texts`.
